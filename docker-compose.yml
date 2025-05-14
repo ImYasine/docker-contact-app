@@ -1,0 +1,66 @@
+# version: '3.8'
+
+services:
+  # PostgreSQL Database
+  pgsql:
+    image: postgres:14.7
+    command: ["postgres", "-c", "listen_addresses=*"]
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: postgres
+    networks:
+      - app-network
+
+  # Adminer (Web-based DB management)
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  # Redis
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    networks:
+      - app-network
+
+  # Your Fastify Server
+  server:
+    build: ./server
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=pgsql
+      - DB_USER=docker
+      - DB_PASSWORD=docker
+      - DB_NAME=postgres
+    depends_on:
+      - pgsql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

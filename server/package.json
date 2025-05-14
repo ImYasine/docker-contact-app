@@ -1,0 +1,13 @@
+{
+  "name": "contact-server",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "fastify": "^4.0.0",
+    "pg": "^8.8.0",
+    "@fastify/formbody": "^7.0.0" 
+  }
+}
